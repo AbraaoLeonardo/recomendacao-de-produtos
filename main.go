@@ -20,6 +20,7 @@ func main() {
 	r := gin.Default()
 
 	r.POST("/vendas", handlers.SalvarVendaHandler)
+	r.POST("/produtos/associados", handlers.BuscarProdutosVendidosJuntosHandler)
 
 	log.Printf("Servidor iniciado na porta %s. Utilizando Connection Pooling...", cfg.ServerPort)
 	if err := r.Run(serverPort); err != nil {

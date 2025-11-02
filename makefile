@@ -4,10 +4,10 @@ reset-docker:
 
 start-docker:
 	docker container run \
-			-p 9999:5432 \
+			-p $(DB_PORT):5432 \
 			-v data:/var/lib/postgresql \
-			-e POSTGRES_PASSWORD=kzzyy2 \
-			-e POSTGRES_USER=kzzyy2 \
-			-e POSTGRES_DB=recomendacoes \
+			-e POSTGRES_PASSWORD=$(DB_PASSWORD) \
+			-e POSTGRES_USER==$(DB_USER) \
+			-e POSTGRES_DB==$(DB_NAME) \
 			--name postgresql \
 			-d postgres:14.19-alpine3.21

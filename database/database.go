@@ -1,63 +1,40 @@
 package database
 
 import (
-	"log"
-	"net/http"
 	"database/sql"
+	"log"
+	"time"
+
 	_ "github.com/lib/pq"
 )
 
-func ConnectToDB() *sql.DB {
-	connStr := "user=yourusername dbname=yourdbname sslmode=disable password=yourpassword host=yourhost port=yourport"
-	db, err := sql.Open("postgres", connStr)
+var DB *sql.DB
+
+const connStr = "user=seu_usuario password=sua_senha dbname=seu_banco host=localhost sslmode=disable"
+
+func InitDB() {
+	var err error
+
+	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatal("Error connecting to the database: ", err)
+		log.Fatalf("Erro ao abrir a conexão (sql.Open): %v", err)
 	}
 
-	err = db.Ping()
+	DB.SetMaxOpenConns(25)
+	DB.SetMaxIdleConns(25)
+	DB.SetConnMaxLifetime(5 * time.Minute)
+
+	err = DB.Ping()
 	if err != nil {
-		log.Fatal("Error pinging the database: ", err)
+		log.Fatalf("Erro ao conectar/pingar o banco de dados: %v", err)
 	}
 
-	log.Println("Successfully connected to the database")
-	return db
+	log.Println("Pool de Conexões com o PostgreSQL estabelecido com sucesso!")
 }
 
-func CloseDB(db *sql.DB) {
-	err := db.Close()
-	if err != nil {
-		log.Println("Error closing the database connection: ", err)
-	} else {
-		log.Println("Database connection closed successfully")
+func CloseDB() {
+	if DB != nil {
+		DB.Close()
+		log.Println("Pool de Conexões com o PostgreSQL fechado.")
 	}
-}
-
-func QueryDB(query string)(*sql.Rows, error) {
-	db := ConnectToDB()
-	defer CloseDB(db)
-
-	rows, err := db.Query(query)
-	if err != nil {
-		log.Println("Error executing query: ", err)
-		return nil, err
-	}
-
-	return rows, nil
-}
-
-func HandleDBError(w http.ResponseWriter, err error) {
-	http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
-}
-
-func UpdateDB(query string) error {
-	db := ConnectToDB()
-	defer CloseDB(db)
-
-	_, err := db.Exec(query)
-	if err != nil {
-		log.Println("Error executing update: ", err)
-		return err
-	}
-
-	return nil
 }

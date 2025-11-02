@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
@@ -10,10 +11,9 @@ import (
 
 var DB *sql.DB
 
-const connStr = "user=seu_usuario password=sua_senha dbname=seu_banco host=localhost sslmode=disable"
-
-func InitDB() {
+func InitDB(user, password, dbname, host, port string) {
 	var err error
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable", user, password, dbname, host, port)
 
 	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
